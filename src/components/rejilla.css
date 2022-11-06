@@ -1,0 +1,19 @@
+.rejilla{
+    margin: 2%;    
+}
+.handsontable .celdas{       
+  background-color: rgb(230, 62, 154); 
+  }
+  .handsontable .celdas2{
+    color:  white;
+  }
+ .custom-table thead th:nth-child(odd),
+ .custom-table tbody tr:nth-child(even) th {
+  background-color: blue;
+}
+.handsontable .borders{
+  border-style:groove; 
+}
+.handsontable .centrarTexto{
+  text-align: center;  
+}
