@@ -6,6 +6,8 @@ import 'handsontable/dist/handsontable.full.css';
 import { registerAllModules } from 'handsontable/registry'
 import 'handsontable/dist/handsontable.full.min.css';
 import { useRef } from 'react';
+import { HyperFormula } from 'hyperformula';
+import backGroundColorFestivos from './rellenoFestivos';
 //import {useEffect} from 'react'
 
 
@@ -28,6 +30,14 @@ function Rejilla() {
     Data[1][labelPositions[i]] = mesesLabel[i]
   }
   Data[21][12]= "Total Horas"
+  Data[22][1]=11
+  Data[22][2]=4
+  Data[22][3]=3
+  Data[22][4]=5
+  Data[22][5]=5
+  Data[22][6]=2
+  Data[22][12]='=SUM(B18:I23)'
+
 
 
   //Imprime la palabra "hora" en cada columna donde inicia cada mes
@@ -293,17 +303,8 @@ function Rejilla() {
 
   // };
 
-  const hot = useRef(null);
-
-  function backGroundColor(instance, td) {
-    td.style.backgroundColor = 'red';
-  }
-  // function relleno(instance,td){
-  //   td.style.backGroundColor = 'blue'
-  // }
-
-
-  //useEffect(() =>{ 
+  const hot = useRef(null); 
+ //useEffect(() =>{ 
   //const selectCelljelm48 = () => {
   // hot.current.hotInstance.addHook('afterOnCellMouseDown',function() {          
   // const color = hot.current.hotInstance.getCell(4,3)
@@ -317,19 +318,20 @@ function Rejilla() {
   //})
   //})
   //}
-
+  
   function generarNumero(numero) {
     return (Math.random() * numero).toFixed(0);
   }
   function colorRGB() {
-    var color = "(" + generarNumero(250) + "," + generarNumero(250) + "," + generarNumero(250) + ")";
-    return "rgb" + color;
+    let color = "(" + generarNumero(250) + "," + generarNumero(250) + "," + generarNumero(250) + ")";
+     return    "rgb" + color
+    
   }
   const deleteWholeProgramming = () => {
     for (let i = 1; i <= 247; i++) {
       for (let j = 4; j <= 19; j++) {
         if (hot.current.hotInstance.getCell(j, i).style.backgroundColor !== 'red') {
-          hot.current.hotInstance.getCell(j, i).style.backgroundColor = ""
+            hot.current.hotInstance.getCell(j, i).style.backgroundColor = ""
         }
       }
     }
@@ -342,11 +344,12 @@ function Rejilla() {
         ref={hot}
         data={Data}
         //formulas={}
-        rowHeaders={true}
-        colHeaders={true}
+        // rowHeaders={true}
+        // colHeaders={true}
+        formulas={{engine : HyperFormula}}
         mergeCells={[{ row: 1, col: 1, rowspan: 1, colspan: 20 }, { row: 1, col: 22, rowspan: 1, colspan: 23 }, { row: 1, col: 46, rowspan: 1, colspan: 20 }, { row: 1, col: 67, rowspan: 1, colspan: 23 }, { row: 1, col: 91, rowspan: 1, colspan: 22 }, { row: 1, col: 114, rowspan: 1, colspan: 21 }, { row: 1, col: 136, rowspan: 1, colspan: 23 }, { row: 1, col: 160, rowspan: 1, colspan: 21 }, { row: 1, col: 182, rowspan: 1, colspan: 22 }, { row: 1, col: 205, rowspan: 1, colspan: 22 },{ row: 1, col: 228, rowspan: 1, colspan: 21 },{ row: 21, col: 12, rowspan: 1, colspan:9 },{ row: 22, col:12, rowspan: 1, colspan:9}]}
         //contextMenu={true}           
-        readOnly={true}
+        //readOnly={true}
         className='htCenter'
         //Colorea los días festivos  
         cells={function (row, col, prop) {
@@ -355,7 +358,7 @@ function Rejilla() {
           for (let i = 0; i < columnasFestivos.length; i++) {
             for (let j = 4; j <= 19; j++) {
               if (row === j && col === columnasFestivos[i]) {
-                cellProperties.renderer = backGroundColor
+                cellProperties.renderer = backGroundColorFestivos
               }
             }
             //Coloca bordes a la programación
@@ -365,15 +368,23 @@ function Rejilla() {
                 cellProperties.className = 'borders'
               }
           }
-          if (row > 20 && row < 23 && col >= 1 && col <= 8) {
+          //Bordes de las celdas donde van las horas
+          let columnasBordes = [1,8,22,29,46,53,67,74,91,98,114,121,136,143,160,167,182,189,205,212,228,235]
+          for(let i=0;i<columnasBordes.length;i=i+2){
+          if (row > 20 && row < 23 && col >= columnasBordes[i] && col <= columnasBordes[i+1]) {
             cellProperties.className = 'borders'
-          }
-          if (row > 20 && row < 23 && col >= 12 && col <= 20) {
+          } }
+          //Bordes donde va la suma de las horas
+          let columnasBordesHoras = [12,20,35,44,57,65,80,89,103,112,125,134,150,158,172,180,194,203,218,226,240,248]
+          for(let i=0;i<columnasBordesHoras.length;i=i+2){
+          if (row > 20 && row < 23 && col >=columnasBordesHoras[i]  && col <=columnasBordesHoras[i+1] ) {
             cellProperties.className = 'borders'
-          }
+          }}
           if(row >= 20 && row <=23 && col<=20 && col >=12){
             cellProperties.className = 'centrarTexto'
           }
+          for(let i=0;i<249;i++){ //este ciclo pinta de blanco las fechas de la fila 0.
+              if(row===0 && col===i){cellProperties.className = 'colorMeses'}}
 
           return cellProperties
         }}
@@ -388,15 +399,15 @@ function Rejilla() {
           hot.current.hotInstance.setCellMeta(2, 3, 'className', 'hola')
         }}
         afterOnCellMouseDown={function (event, coords, TD) {
-          let horasDiariasTrabajo = 5
+          let horasDiariasTrabajo = 2
           let auxCoordsCol = coords.col
           let horaInicio = coords.row + 2
           let mesInicio = hot.current.hotInstance.getCell(0, coords.col).innerHTML
           let diaInicio = hot.current.hotInstance.getCell(2, coords.col).innerHTML
-          let duracionCursoIngresadoPorUsuario = 40
+          let duracionCursoIngresadoPorUsuario = 20
           let duracionCursoExacto = Math.floor(duracionCursoIngresadoPorUsuario / horasDiariasTrabajo) * horasDiariasTrabajo //cociente de la división
           let diaHorasDiariasIncompletas = duracionCursoIngresadoPorUsuario % horasDiariasTrabajo //residuo de la división
-          let diasTrabajo = ["L","M","","j","V"]
+          let diasTrabajo = ["L","M","","J","V"]
           let colorDeRelleno = colorRGB()
           const color = TD.style.backgroundColor
 
@@ -422,7 +433,9 @@ function Rejilla() {
               if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
                 for (let i = coords.row; i < horasDiariasTrabajo + coords.row; i++) { //A las horas diaras de trabajo le sumo la fila donde inicia el curso y el "for" va hasta una unidad antes de esta suma lo que permite rellenar las celdas según la cantidad de horas diarias de trabajo. Ejemplo: si el curso inicia en la fila 2 y la cantidad de horas diaria de trabajo son 3 entonces 2+3 = 5 lo que significa que el for va hasta 4 empezando desde el 2 
                   if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === "") {
-                    hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
+                     hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
+                    //hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')
+                   
                   }
                   else {
                     if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === 'red') {

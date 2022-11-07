@@ -4,8 +4,8 @@
 .handsontable .celdas{       
   background-color: rgb(230, 62, 154); 
   }
-  .handsontable .celdas2{
-    color:  white;
+  .handsontable .colorMeses{
+    color: white;    
   }
  .custom-table thead th:nth-child(odd),
  .custom-table tbody tr:nth-child(even) th {
@@ -16,4 +16,7 @@
 }
 .handsontable .centrarTexto{
   text-align: center;  
+}
+.handsontable .colorDeRelleno{
+  background-color: aqua;
 }
