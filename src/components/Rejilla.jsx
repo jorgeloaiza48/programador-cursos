@@ -30,7 +30,7 @@ function Rejilla() {
     Data[1][labelPositions[i]] = mesesLabel[i]
   }
   Data[21][12]= "Total Horas"
-  Data[22][1]=11
+  //Data[22][1]=11
   Data[22][2]=4
   Data[22][3]=3
   Data[22][4]=5
@@ -336,6 +336,17 @@ function Rejilla() {
       }
     }
   }
+  //let relleno = function (instance, td, row, col, prop, value,cellProperties){
+    //td.style.backgroundColor = colorRGB();
+   //hot.current.hotInstance.setCell(row,col).style.backgroundColor = colorRGB()
+  //  td.backgroundColor = 'green'
+  //   console.log("Esta es la función prueba")
+  // }
+  // function customRenderer(instance, td) {
+  //   //hot.current.hotInstance.renderers.TextRenderer.apply(this, arguments);
+  //   td.style.backgroundColor = 'yellow';
+  // }
+ 
 
   return (
     <div className="rejilla">
@@ -352,7 +363,7 @@ function Rejilla() {
         //readOnly={true}
         className='htCenter'
         //Colorea los días festivos  
-        cells={function (row, col, prop) {
+        cells={function (row, col, prop) {          
           let cellProperties = []
           let columnasFestivos = [35, 49, 50, 67, 82, 98, 103, 114, 127, 140, 150, 192, 208, 213, 233, 244,] //este arreglo contiene las posiciones de las columnas de los festivos del año 2023
           for (let i = 0; i < columnasFestivos.length; i++) {
@@ -392,14 +403,13 @@ function Rejilla() {
         beforeOnCellMouseDown={function (event, coords, TD, controller) {
           console.log("Coord.row ", coords.row)
           console.log("Coord.col ", coords.col)
-          if (coords.row < 4 || coords.row > 19 || coords.col === 0 || coords.col === 21 || coords.col === 45 || coords.col === 66 || coords.col === 90 || coords.col === 113 || coords.col === 135 || coords.col === 159 || coords.col === 181 || coords.col === 204 || coords.col === 227 || coords.col === 249) {
+          if (coords.row < 4 || coords.row > 19 || coords.col === 0 || coords.col === 21 || coords.col === 45 || coords.col === 66 || coords.col === 90 || coords.col === 113 || coords.col === 135 || coords.col === 159 || coords.col === 181 || coords.col === 204 || coords.col === 227 || coords.col === 249) {           
             event.stopImmediatePropagation()
             console.log("Click en una celda donde no se puede programar")
-          }
-          hot.current.hotInstance.setCellMeta(2, 3, 'className', 'hola')
+          }        
         }}
-        afterOnCellMouseDown={function (event, coords, TD) {
-          let horasDiariasTrabajo = 2
+        afterOnCellMouseDown={function (event, coords, TD) {                                   
+          let horasDiariasTrabajo = 3
           let auxCoordsCol = coords.col
           let horaInicio = coords.row + 2
           let mesInicio = hot.current.hotInstance.getCell(0, coords.col).innerHTML
@@ -409,8 +419,13 @@ function Rejilla() {
           let diaHorasDiariasIncompletas = duracionCursoIngresadoPorUsuario % horasDiariasTrabajo //residuo de la división
           let diasTrabajo = ["L","M","","J","V"]
           let colorDeRelleno = colorRGB()
-          const color = TD.style.backgroundColor
-
+          let totalHorasParciales = 0 //Esta variable va sumando la horas cada vez que se pintan y al final se colocan en la parte de abajo.   
+          let totalHorasParcialesInexactas = 0 //Esta variable acumula cada vez que se pinta una hora de las inexactas, es decir, las del residuo en la división.          
+          const color = TD.style.backgroundColor  
+          console.log("Event -->> ", event) 
+          console.log("TD -->> ", TD)
+          
+         
           if (color === "red") { //Detecta si se hizo click en una celda roja(festivo)y arroja un aviso.
             alert("No se puede iniciar programación un día festivo")
           }
@@ -432,11 +447,11 @@ function Rejilla() {
               let nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, coords.col).innerHTML
               if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
                 for (let i = coords.row; i < horasDiariasTrabajo + coords.row; i++) { //A las horas diaras de trabajo le sumo la fila donde inicia el curso y el "for" va hasta una unidad antes de esta suma lo que permite rellenar las celdas según la cantidad de horas diarias de trabajo. Ejemplo: si el curso inicia en la fila 2 y la cantidad de horas diaria de trabajo son 3 entonces 2+3 = 5 lo que significa que el for va hasta 4 empezando desde el 2 
-                  if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === "") {
-                     hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
-                    //hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')
-                   
-                  }
+                  if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === "") { 
+                       hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
+                       //this.hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')                                                                                     
+                    }
+                  
                   else {
                     if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === 'red') {
                       console.log("Encontré un festivo")
@@ -466,7 +481,15 @@ function Rejilla() {
                   }
                 }
                 duracionCursoExacto = duracionCursoExacto - horasDiariasTrabajo
+                totalHorasParciales++ //cada vez que rellena según la cantidad de horas diarias de trabajo incrementa en 1 la variable
+                if(coords.col <= 20){
+                  hot.current.hotInstance.getCell(21,1).style.backgroundColor = colorDeRelleno
+                  hot.current.hotInstance.getCell(22,1).innerHTML = totalHorasParciales * horasDiariasTrabajo                  
+                }
                 coords.col = coords.col + 1
+                
+               
+
               }
               else {
                 coords.col = coords.col + 1
@@ -477,14 +500,15 @@ function Rejilla() {
               let nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, coords.col).innerHTML
               console.log("Nombre dia después del While ", nombreDiaInicioCurso)
               if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
-                for (let i = 0; i < diaHorasDiariasIncompletas; i++) {
+                for(let i = 0; i < diaHorasDiariasIncompletas; i++) {
                   if (hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor === "") {
-                    hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor = colorDeRelleno
+                      hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor = colorDeRelleno
+                      totalHorasParcialesInexactas++
                   }
                   else {
-                    let diaCruce = hot.current.hotInstance.getCell(2, coords.col).innetHTML
-                    let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innetHTML
-                    let horaCruce = (coords.row + i) + 2
+                    let diaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
+                    let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innerHTML
+                    let horaCruce = coords.row  + 2
                     console.log("No se puede programar porque hay un cruce en ", diaCruce + "/" + mesCruce, "a las ", horaCruce, "horas")
                   }
                 }
@@ -493,13 +517,16 @@ function Rejilla() {
               else {
                 coords.col++
               }
+              if(coords.col <= 20){
+                hot.current.hotInstance.getCell(21,1).style.backgroundColor = colorDeRelleno
+                hot.current.hotInstance.getCell(22,1).innerHTML = totalHorasParciales * horasDiariasTrabajo + totalHorasParcialesInexactas
+              }
             }
 
           }
 
-
-
         }
+        
         }
         // cells = {function(row,col,prop){
         //   let columnasFestivos = [35,49,50,67,82,98,103,114,127,140,150,192,208,213,233,244,] //este arreglo contiene las posiciones de las columnas de los festivos del año 2023
