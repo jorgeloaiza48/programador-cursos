@@ -345,9 +345,30 @@ function Rejilla() {
   // function customRenderer(instance, td) {
   //   //hot.current.hotInstance.renderers.TextRenderer.apply(this, arguments);
   //   td.style.backgroundColor = 'yellow';
-  // }
- 
-
+  // } 
+  let coloresDeRellenoGenerados = [] //Este array irá guardando los colores que se generen para luego contarlos
+  function conteoHorasFebrero(cantidadHorasSegunColor=[]){
+    let aux = 0
+    for(let i=1;i<=20;i++){
+      for(let j=4;j<=19;j++){
+        //console.log("Color de cada celda en el mes de febrero: ",hot.current.hotInstance.getCell(j,i).style.backgroundColor)       
+          aux = coloresDeRellenoGenerados.indexOf(hot.current.hotInstance.getCell(j,i).style.backgroundColor.replace(/\s+/g, '')) //https://pixonauta.com/eliminar-espacios-en-blanco-de-un-string-con-javascript/
+          console.log("Aux ---> ",aux)
+          if(aux !== -1){
+            cantidadHorasSegunColor[aux]++
+            aux=0
+          }
+      }
+    }
+    console.log("Array cantidadHorasSegunColor ",cantidadHorasSegunColor)
+    console.log("coloresDeRellenoGenerados :",coloresDeRellenoGenerados)
+    // console.log("coloresDeRellenoGenerados con String :",typeof String(coloresDeRellenoGenerados))
+    // console.log("hot.current.hotInstance.getCell(j,i).style.backgroundColor: ",hot.current.hotInstance.getCell(5,5).style.backgroundColor)
+    // console.log("Type of hot.current.hotInstance.getCell(5,5).style.backgroundColor :",typeof hot.current.hotInstance.getCell(5,5).style.backgroundColor)
+    // aux = coloresDeRellenoGenerados.indexOf(hot.current.hotInstance.getCell(5,5).style.backgroundColor)
+    // console.log("Aux ---> ",aux)
+    //return cantidadHorasSegunColor
+  }
   return (
     <div className="rejilla">
 
@@ -414,16 +435,36 @@ function Rejilla() {
           let horaInicio = coords.row + 2
           let mesInicio = hot.current.hotInstance.getCell(0, coords.col).innerHTML
           let diaInicio = hot.current.hotInstance.getCell(2, coords.col).innerHTML
-          let duracionCursoIngresadoPorUsuario = 20
+          let duracionCursoIngresadoPorUsuario = 13
           let duracionCursoExacto = Math.floor(duracionCursoIngresadoPorUsuario / horasDiariasTrabajo) * horasDiariasTrabajo //cociente de la división
           let diaHorasDiariasIncompletas = duracionCursoIngresadoPorUsuario % horasDiariasTrabajo //residuo de la división
           let diasTrabajo = ["L","M","","J","V"]
-          let colorDeRelleno = colorRGB()
-          let totalHorasParciales = 0 //Esta variable va sumando la horas cada vez que se pintan y al final se colocan en la parte de abajo.   
-          let totalHorasParcialesInexactas = 0 //Esta variable acumula cada vez que se pinta una hora de las inexactas, es decir, las del residuo en la división.          
+          let colorDeRelleno = colorRGB()          
+          coloresDeRellenoGenerados.push(colorDeRelleno)
+          let cantidadHorasSegunColor = new Array(coloresDeRellenoGenerados.length)//Este array se crea con la longitud del array "coloresDeRellenoGenerados" paa guardar la cantidad de horas de cada color
+          for(let i=0;i<cantidadHorasSegunColor.length;i++){
+              cantidadHorasSegunColor[i] = 0            
+          }
+          // console.log("Longitud de cantidadHorasSegunColor ",cantidadHorasSegunColor.length)
+          // console.log("Longitud coloresDeRellenoGenerados ", coloresDeRellenoGenerados.length)
+          // //console.log("Tipo de colorDeRelleno ",typeof colorDeRelleno)
+          // console.log(cantidadHorasSegunColor)
+          // console.log(coloresDeRellenoGenerados)
+          // for(let i=0;i<coloresDeRellenoGenerados.length;i++){
+          //   console.log("coloresDeRellenoGenerados:",coloresDeRellenoGenerados[i])
+          //   cantidadHorasSegunColor[i] = coloresDeRellenoGenerados[i]
+          //   console.log("cantidadHorasSegunColor :",cantidadHorasSegunColor[i])
+          // }
+          // console.log("Hola ",hot.current.hotInstance.getCell(coords.row, coords.col).style.backgroundColor.replace(/\s+/g, ''))
+          // if(hot.current.hotInstance.getCell(coords.row, coords.col).style.backgroundColor.replace(/\s+/g, '') === coloresDeRellenoGenerados[0]){ //https://pixonauta.com/eliminar-espacios-en-blanco-de-un-string-con-javascript/
+          //   console.log("Son iguales")
+          // }
+          
+          
           const color = TD.style.backgroundColor  
-          console.log("Event -->> ", event) 
-          console.log("TD -->> ", TD)
+          console.log("TD ", color)
+          // console.log("Event -->> ", event) 
+          // console.log("TD -->> ", TD)
           
          
           if (color === "red") { //Detecta si se hizo click en una celda roja(festivo)y arroja un aviso.
@@ -480,19 +521,12 @@ function Rejilla() {
                     }
                   }
                 }
-                duracionCursoExacto = duracionCursoExacto - horasDiariasTrabajo
-                totalHorasParciales++ //cada vez que rellena según la cantidad de horas diarias de trabajo incrementa en 1 la variable
-                if(coords.col <= 20){
-                  hot.current.hotInstance.getCell(21,1).style.backgroundColor = colorDeRelleno
-                  hot.current.hotInstance.getCell(22,1).innerHTML = totalHorasParciales * horasDiariasTrabajo                  
-                }
-                coords.col = coords.col + 1
-                
+                duracionCursoExacto = duracionCursoExacto - horasDiariasTrabajo                
                
-
+                coords.col = coords.col + 1                               
               }
               else {
-                coords.col = coords.col + 1
+                coords.col = coords.col + 1                
               }
             }
             //Este ciclo pinta el día restante con las horas que sobran.
@@ -503,7 +537,7 @@ function Rejilla() {
                 for(let i = 0; i < diaHorasDiariasIncompletas; i++) {
                   if (hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor === "") {
                       hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor = colorDeRelleno
-                      totalHorasParcialesInexactas++
+                     
                   }
                   else {
                     let diaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
@@ -517,16 +551,14 @@ function Rejilla() {
               else {
                 coords.col++
               }
-              if(coords.col <= 20){
-                hot.current.hotInstance.getCell(21,1).style.backgroundColor = colorDeRelleno
-                hot.current.hotInstance.getCell(22,1).innerHTML = totalHorasParciales * horasDiariasTrabajo + totalHorasParcialesInexactas
-              }
+             
             }
 
           }
-
+          conteoHorasFebrero(cantidadHorasSegunColor)
+          
         }
-        
+       
         }
         // cells = {function(row,col,prop){
         //   let columnasFestivos = [35,49,50,67,82,98,103,114,127,140,150,192,208,213,233,244,] //este arreglo contiene las posiciones de las columnas de los festivos del año 2023
