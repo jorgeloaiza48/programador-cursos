@@ -6,7 +6,7 @@ import 'handsontable/dist/handsontable.full.css';
 import { registerAllModules } from 'handsontable/registry'
 import 'handsontable/dist/handsontable.full.min.css';
 import { useRef } from 'react';
-import { HyperFormula } from 'hyperformula';
+//import { HyperFormula } from 'hyperformula';
 import backGroundColorFestivos from './rellenoFestivos';
 //import {useEffect} from 'react'
 
@@ -18,10 +18,13 @@ function Rejilla() {
 
 
   //****Crea un arreglo de 24 filas por 250 columnas(24x250)
-  let Data = new Array(27) //crea un array de 24 posiciones(filas)
+  let Data = new Array(25) //crea un array de 25 posiciones(filas)
   for (let i = 0; i < 24; i++) {  //este ciclo coloca en cada posición un array de 250 posiciones(columnas)
     Data[i] = new Array(252)
   }
+
+  Data[21][16] = "Total Horas"
+  Data[21][40] = "Total Horas"
 
   //Este ciclo imprime el nombre de los meses sobre las celdas combinadas
   let labelPositions = [1, 22, 46, 67, 91, 114, 136, 160, 182, 205, 228]
@@ -29,16 +32,6 @@ function Rejilla() {
   for (let i = 0; i < labelPositions.length; i++) {
     Data[1][labelPositions[i]] = mesesLabel[i]
   }
-  Data[21][12]= "Total Horas"
-  //Data[22][1]=11
-  Data[22][2]=4
-  Data[22][3]=3
-  Data[22][4]=5
-  Data[22][5]=5
-  Data[22][6]=2
-  Data[22][12]='=SUM(B18:I23)'
-
-
 
   //Imprime la palabra "hora" en cada columna donde inicia cada mes
   let horas = [0, 21, 45, 66, 90, 113, 135, 159, 181, 204, 227, 249]
@@ -303,8 +296,8 @@ function Rejilla() {
 
   // };
 
-  const hot = useRef(null); 
- //useEffect(() =>{ 
+  const hot = useRef(null);
+  //useEffect(() =>{ 
   //const selectCelljelm48 = () => {
   // hot.current.hotInstance.addHook('afterOnCellMouseDown',function() {          
   // const color = hot.current.hotInstance.getCell(4,3)
@@ -318,27 +311,37 @@ function Rejilla() {
   //})
   //})
   //}
-  
+
   function generarNumero(numero) {
     return (Math.random() * numero).toFixed(0);
   }
   function colorRGB() {
     let color = "(" + generarNumero(250) + "," + generarNumero(250) + "," + generarNumero(250) + ")";
-     return    "rgb" + color
-    
+    return "rgb" + color
+
   }
-  const deleteWholeProgramming = () => {
-    for (let i = 1; i <= 247; i++) {
-      for (let j = 4; j <= 19; j++) {
+  //Para borrar toda la programación del año me toca hacerlo mes a mes porque cuando lo hacía todo no refrescaba el navegador y es necesario para que todo quede desde cero.
+  function deleteWholeProgramming() {
+    for (let i = 1; i <= 20; i++) { //febrero
+      for (let j = 4; j <= 21; j++) {
         if (hot.current.hotInstance.getCell(j, i).style.backgroundColor !== 'red') {
-            hot.current.hotInstance.getCell(j, i).style.backgroundColor = ""
+          hot.current.hotInstance.getCell(j, i).style.backgroundColor = ""
         }
       }
     }
+    for (let i = 1; i <= 44; i++) { //marzo
+      for (let j = 4; j <= 21; j++) {
+        if (hot.current.hotInstance.getCell(j, i).style.backgroundColor !== 'red') {
+          hot.current.hotInstance.getCell(j, i).style.backgroundColor = ""
+        }
+      }
+    }
+    window.location.reload()
   }
+
   //let relleno = function (instance, td, row, col, prop, value,cellProperties){
-    //td.style.backgroundColor = colorRGB();
-   //hot.current.hotInstance.setCell(row,col).style.backgroundColor = colorRGB()
+  //td.style.backgroundColor = colorRGB();
+  //hot.current.hotInstance.setCell(row,col).style.backgroundColor = colorRGB()
   //  td.backgroundColor = 'green'
   //   console.log("Esta es la función prueba")
   // }
@@ -346,45 +349,81 @@ function Rejilla() {
   //   //hot.current.hotInstance.renderers.TextRenderer.apply(this, arguments);
   //   td.style.backgroundColor = 'yellow';
   // } 
-  let coloresDeRellenoGenerados = [] //Este array irá guardando los colores que se generen para luego contarlos
-  function conteoHorasFebrero(cantidadHorasSegunColor=[]){
+
+  let coloresDeRellenoGenerados = [] //Este array irá guardando los colores que se generen.
+  //let columnaDondeSeGeneraElColor = new Array(coloresDeRellenoGenerados.length) //Este array guarda la columna donde se hace click para saber si el color generado es de cierto mes.
+
+  //function conteoHorasFebrero(cantidadHorasSegunColor = []) {
+  function febrero(cantidadHorasSegunColor = []) {
     let aux = 0
-    for(let i=1;i<=20;i++){
-      for(let j=4;j<=19;j++){
-        //console.log("Color de cada celda en el mes de febrero: ",hot.current.hotInstance.getCell(j,i).style.backgroundColor)       
-          aux = coloresDeRellenoGenerados.indexOf(hot.current.hotInstance.getCell(j,i).style.backgroundColor.replace(/\s+/g, '')) //https://pixonauta.com/eliminar-espacios-en-blanco-de-un-string-con-javascript/
-          console.log("Aux ---> ",aux)
-          if(aux !== -1){
-            cantidadHorasSegunColor[aux]++
-            aux=0
-          }
+    for (let i = 1; i <= 20; i++) {
+      for (let j = 4; j <= 19; j++) {
+        aux = coloresDeRellenoGenerados.indexOf(hot.current.hotInstance.getCell(j, i).style.backgroundColor.replace(/\s+/g, '')) //https://pixonauta.com/eliminar-espacios-en-blanco-de-un-string-con-javascript/   La expresión regular /\s+/g, '' elimina los espacios que hay en la cadena. La uso porque el background color estaba quedando con espacios rgb(125,  23, 241) y al hacer la comparación con los colores generados pues no habían coincidencias por esos espacios en blanco.       
+        if (aux !== -1) {
+          cantidadHorasSegunColor[aux]++
+          aux = 0
+        }
       }
     }
-    console.log("Array cantidadHorasSegunColor ",cantidadHorasSegunColor)
-    console.log("coloresDeRellenoGenerados :",coloresDeRellenoGenerados)
-    // console.log("coloresDeRellenoGenerados con String :",typeof String(coloresDeRellenoGenerados))
-    // console.log("hot.current.hotInstance.getCell(j,i).style.backgroundColor: ",hot.current.hotInstance.getCell(5,5).style.backgroundColor)
-    // console.log("Type of hot.current.hotInstance.getCell(5,5).style.backgroundColor :",typeof hot.current.hotInstance.getCell(5,5).style.backgroundColor)
-    // aux = coloresDeRellenoGenerados.indexOf(hot.current.hotInstance.getCell(5,5).style.backgroundColor)
-    // console.log("Aux ---> ",aux)
-    //return cantidadHorasSegunColor
+    console.log("cantidadHorasSegunColor en febrero: ", cantidadHorasSegunColor)
+    let col = 1
+    let totalHoras = 0
+    for (let i = 0; i < cantidadHorasSegunColor.length; i++) {
+      if (cantidadHorasSegunColor[i] !== 0) {
+        hot.current.hotInstance.getCell(21, col).style.backgroundColor = coloresDeRellenoGenerados[i]
+        hot.current.hotInstance.getCell(22, col).innerHTML = cantidadHorasSegunColor[i]
+        totalHoras = totalHoras + cantidadHorasSegunColor[i]
+        hot.current.hotInstance.getCell(22, 16).innerHTML = totalHoras
+        col++
+      }
+    }
   }
+  ////MARZO////
+  function marzo(cantidadHorasSegunColor = []) {
+    for (let i = 0; i < cantidadHorasSegunColor.length; i++) { //Este ciclo llena de ceros el array "cantidadHorasSegunColor" para poder incrementar la cantidad de horas, de lo contrario arroja NaN 
+      cantidadHorasSegunColor[i] = 0
+    }
+    let aux = 0
+    for (let i = 22; i <= 44; i++) {
+      for (let j = 4; j <= 19; j++) {
+        aux = coloresDeRellenoGenerados.indexOf(hot.current.hotInstance.getCell(j, i).style.backgroundColor.replace(/\s+/g, '')) //https://pixonauta.com/eliminar-espacios-en-blanco-de-un-string-con-javascript/   La expresión regular /\s+/g, '' elimina los espacios que hay en la cadena. La uso porque el background color estaba quedando con espacios rgb(125,  23, 241) y al hacer la comparación con los colores generados pues no habían coincidencias por esos espacios en blanco.       
+        if (aux !== -1) {
+          cantidadHorasSegunColor[aux]++
+          aux = 0
+        }
+      }
+    }
+    console.log("cantidadHorasSegunColor en marzo: ", cantidadHorasSegunColor)
+    let col = 22
+    let totalHoras = 0
+    for (let i = 0; i < cantidadHorasSegunColor.length; i++) {
+      if (cantidadHorasSegunColor[i] !==0) {
+        hot.current.hotInstance.getCell(21, col).style.backgroundColor = coloresDeRellenoGenerados[i]
+        hot.current.hotInstance.getCell(22, col).innerHTML = cantidadHorasSegunColor[i]
+        totalHoras = totalHoras + cantidadHorasSegunColor[i]
+        hot.current.hotInstance.getCell(22, 40).innerHTML = totalHoras
+        col++
+      }
+    }
+  }
+  //}
+
+
   return (
     <div className="rejilla">
 
       <HotTable
         ref={hot}
         data={Data}
-        //formulas={}
         // rowHeaders={true}
         // colHeaders={true}
-        formulas={{engine : HyperFormula}}
-        mergeCells={[{ row: 1, col: 1, rowspan: 1, colspan: 20 }, { row: 1, col: 22, rowspan: 1, colspan: 23 }, { row: 1, col: 46, rowspan: 1, colspan: 20 }, { row: 1, col: 67, rowspan: 1, colspan: 23 }, { row: 1, col: 91, rowspan: 1, colspan: 22 }, { row: 1, col: 114, rowspan: 1, colspan: 21 }, { row: 1, col: 136, rowspan: 1, colspan: 23 }, { row: 1, col: 160, rowspan: 1, colspan: 21 }, { row: 1, col: 182, rowspan: 1, colspan: 22 }, { row: 1, col: 205, rowspan: 1, colspan: 22 },{ row: 1, col: 228, rowspan: 1, colspan: 21 },{ row: 21, col: 12, rowspan: 1, colspan:9 },{ row: 22, col:12, rowspan: 1, colspan:9}]}
+        //formulas={{ engine: HyperFormula}}
+        mergeCells={[{ row: 1, col: 1, rowspan: 1, colspan: 20 }, { row: 1, col: 22, rowspan: 1, colspan: 23 }, { row: 1, col: 46, rowspan: 1, colspan: 20 }, { row: 1, col: 67, rowspan: 1, colspan: 23 }, { row: 1, col: 91, rowspan: 1, colspan: 22 }, { row: 1, col: 114, rowspan: 1, colspan: 21 }, { row: 1, col: 136, rowspan: 1, colspan: 23 }, { row: 1, col: 160, rowspan: 1, colspan: 21 }, { row: 1, col: 182, rowspan: 1, colspan: 22 }, { row: 1, col: 205, rowspan: 1, colspan: 22 }, { row: 1, col: 228, rowspan: 1, colspan: 21 }, { row: 21, col: 16, rowspan: 1, colspan: 5 }, { row: 22, col: 16, rowspan: 1, colspan: 5 }, { row: 21, col: 40, rowspan: 1, colspan: 5 }, { row: 22, col: 40, rowspan: 1, colspan: 5 }]}
         //contextMenu={true}           
         //readOnly={true}
         className='htCenter'
         //Colorea los días festivos  
-        cells={function (row, col, prop) {          
+        cells={function (row, col, prop) {
           let cellProperties = []
           let columnasFestivos = [35, 49, 50, 67, 82, 98, 103, 114, 127, 140, 150, 192, 208, 213, 233, 244,] //este arreglo contiene las posiciones de las columnas de los festivos del año 2023
           for (let i = 0; i < columnasFestivos.length; i++) {
@@ -401,72 +440,41 @@ function Rejilla() {
               }
           }
           //Bordes de las celdas donde van las horas
-          let columnasBordes = [1,8,22,29,46,53,67,74,91,98,114,121,136,143,160,167,182,189,205,212,228,235]
-          for(let i=0;i<columnasBordes.length;i=i+2){
-          if (row > 20 && row < 23 && col >= columnasBordes[i] && col <= columnasBordes[i+1]) {
-            cellProperties.className = 'borders'
-          } }
+          let columnasBordes = [1, 8, 22, 29, 46, 53, 67, 74, 91, 98, 114, 121, 136, 143, 160, 167, 182, 189, 205, 212, 228, 235]
+          for (let i = 0; i < columnasBordes.length; i = i + 2) {
+            if (row > 20 && row < 23 && col >= columnasBordes[i] && col <= columnasBordes[i + 1]) {
+              cellProperties.className = 'borders'
+            }
+          }
           //Bordes donde va la suma de las horas
-          let columnasBordesHoras = [12,20,35,44,57,65,80,89,103,112,125,134,150,158,172,180,194,203,218,226,240,248]
-          for(let i=0;i<columnasBordesHoras.length;i=i+2){
-          if (row > 20 && row < 23 && col >=columnasBordesHoras[i]  && col <=columnasBordesHoras[i+1] ) {
-            cellProperties.className = 'borders'
-          }}
-          if(row >= 20 && row <=23 && col<=20 && col >=12){
+          let columnasBordesHoras = [12, 20, 35, 44, 57, 65, 80, 89, 103, 112, 125, 134, 150, 158, 172, 180, 194, 203, 218, 226, 240, 248]
+          for (let i = 0; i < columnasBordesHoras.length; i = i + 2) {
+            if (row > 20 && row < 23 && col >= columnasBordesHoras[i] && col <= columnasBordesHoras[i + 1]) {
+              cellProperties.className = 'borders'
+            }
+          }
+          if (row >= 20 && row <= 23 && col <= 20 && col >= 12) {
             cellProperties.className = 'centrarTexto'
           }
-          for(let i=0;i<249;i++){ //este ciclo pinta de blanco las fechas de la fila 0.
-              if(row===0 && col===i){cellProperties.className = 'colorMeses'}}
-
+          for (let i = 0; i < 249; i++) { //este ciclo pinta de blanco las fechas de la fila 0.
+            if (row === 0 && col === i) { cellProperties.className = 'colorMeses' }
+          }
           return cellProperties
         }}
         //Esta función desabilita las celdas en las cuales no se puede iniciar una programación tales como los nombres de los días entre otras.
         beforeOnCellMouseDown={function (event, coords, TD, controller) {
           console.log("Coord.row ", coords.row)
           console.log("Coord.col ", coords.col)
-          if (coords.row < 4 || coords.row > 19 || coords.col === 0 || coords.col === 21 || coords.col === 45 || coords.col === 66 || coords.col === 90 || coords.col === 113 || coords.col === 135 || coords.col === 159 || coords.col === 181 || coords.col === 204 || coords.col === 227 || coords.col === 249) {           
+          if (coords.row < 4 || coords.row > 19 || coords.col === 0 || coords.col === 21 || coords.col === 45 || coords.col === 66 || coords.col === 90 || coords.col === 113 || coords.col === 135 || coords.col === 159 || coords.col === 181 || coords.col === 204 || coords.col === 227 || coords.col === 249) {
             event.stopImmediatePropagation()
             console.log("Click en una celda donde no se puede programar")
-          }        
-        }}
-        afterOnCellMouseDown={function (event, coords, TD) {                                   
-          let horasDiariasTrabajo = 3
-          let auxCoordsCol = coords.col
-          let horaInicio = coords.row + 2
-          let mesInicio = hot.current.hotInstance.getCell(0, coords.col).innerHTML
-          let diaInicio = hot.current.hotInstance.getCell(2, coords.col).innerHTML
-          let duracionCursoIngresadoPorUsuario = 13
-          let duracionCursoExacto = Math.floor(duracionCursoIngresadoPorUsuario / horasDiariasTrabajo) * horasDiariasTrabajo //cociente de la división
-          let diaHorasDiariasIncompletas = duracionCursoIngresadoPorUsuario % horasDiariasTrabajo //residuo de la división
-          let diasTrabajo = ["L","M","","J","V"]
-          let colorDeRelleno = colorRGB()          
-          coloresDeRellenoGenerados.push(colorDeRelleno)
-          let cantidadHorasSegunColor = new Array(coloresDeRellenoGenerados.length)//Este array se crea con la longitud del array "coloresDeRellenoGenerados" paa guardar la cantidad de horas de cada color
-          for(let i=0;i<cantidadHorasSegunColor.length;i++){
-              cantidadHorasSegunColor[i] = 0            
           }
-          // console.log("Longitud de cantidadHorasSegunColor ",cantidadHorasSegunColor.length)
-          // console.log("Longitud coloresDeRellenoGenerados ", coloresDeRellenoGenerados.length)
-          // //console.log("Tipo de colorDeRelleno ",typeof colorDeRelleno)
-          // console.log(cantidadHorasSegunColor)
-          // console.log(coloresDeRellenoGenerados)
-          // for(let i=0;i<coloresDeRellenoGenerados.length;i++){
-          //   console.log("coloresDeRellenoGenerados:",coloresDeRellenoGenerados[i])
-          //   cantidadHorasSegunColor[i] = coloresDeRellenoGenerados[i]
-          //   console.log("cantidadHorasSegunColor :",cantidadHorasSegunColor[i])
-          // }
-          // console.log("Hola ",hot.current.hotInstance.getCell(coords.row, coords.col).style.backgroundColor.replace(/\s+/g, ''))
-          // if(hot.current.hotInstance.getCell(coords.row, coords.col).style.backgroundColor.replace(/\s+/g, '') === coloresDeRellenoGenerados[0]){ //https://pixonauta.com/eliminar-espacios-en-blanco-de-un-string-con-javascript/
-          //   console.log("Son iguales")
-          // }
-          
-          
-          const color = TD.style.backgroundColor  
-          console.log("TD ", color)
-          // console.log("Event -->> ", event) 
-          // console.log("TD -->> ", TD)
-          
-         
+        }}
+        afterOnCellMouseDown={function (event, coords, TD) {
+
+          const color = TD.style.backgroundColor
+          let horasDiariasTrabajo = 5
+
           if (color === "red") { //Detecta si se hizo click en una celda roja(festivo)y arroja un aviso.
             alert("No se puede iniciar programación un día festivo")
           }
@@ -478,21 +486,43 @@ function Rejilla() {
             console.log("No se puede programar porque las horas diarias de trabajo exceden las 22 horas")
           }
           else {
+
+            let auxCoordsCol = coords.col
+            let horaInicio = coords.row + 2
+            let mesInicio = hot.current.hotInstance.getCell(0, coords.col).innerHTML
+            let diaInicio = hot.current.hotInstance.getCell(2, coords.col).innerHTML
+            let duracionCursoIngresadoPorUsuario = 18
+            let duracionCursoExacto = Math.floor(duracionCursoIngresadoPorUsuario / horasDiariasTrabajo) * horasDiariasTrabajo //cociente de la división
+            let diaHorasDiariasIncompletas = duracionCursoIngresadoPorUsuario % horasDiariasTrabajo //residuo de la división
+            let diasTrabajo = ["L", "M", "", "J", "V"]
+            let colorDeRelleno = colorRGB()
+            coloresDeRellenoGenerados.push(colorDeRelleno)
+            let cantidadHorasSegunColor = new Array(coloresDeRellenoGenerados.length)//Este array se crea con la longitud del array "coloresDeRellenoGenerados" paa guardar la cantidad de horas de cada color
+
+            for (let i = 0; i < cantidadHorasSegunColor.length; i++) { //Este ciclo llena de ceros el array "cantidadHorasSegunColor" para poder incrementar la cantidad de horas, de lo contrario arroja NaN 
+              cantidadHorasSegunColor[i] = 0
+            }
+            //columnaDondeSeGeneraElColor.push(coords.col)//Guardamos la posición de la columna donde se genera el color.
+            console.log("TD ", color)
             console.log("coords.row ", coords.row)
             console.log("coords.col ", coords.col)
             console.log("diasHorasDiariasExactas ", duracionCursoExacto)
             console.log("diaHorasDiariasIncompletas ", diaHorasDiariasIncompletas)
             console.log("Hora de inicio ---> ", horaInicio)
             console.log("Fecha de inicio ---> ", diaInicio + "/" + mesInicio)
+            console.log("coloresDeRellenoGenerados: ", coloresDeRellenoGenerados)
+            //console.log("columnaDondeSeGeneraElColor :", columnaDondeSeGeneraElColor)
+            //console.log("cantidadHorasSegunColor: ",cantidadHorasSegunColor)
+
             while (duracionCursoExacto !== 0) {
               let nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, coords.col).innerHTML
               if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
                 for (let i = coords.row; i < horasDiariasTrabajo + coords.row; i++) { //A las horas diaras de trabajo le sumo la fila donde inicia el curso y el "for" va hasta una unidad antes de esta suma lo que permite rellenar las celdas según la cantidad de horas diarias de trabajo. Ejemplo: si el curso inicia en la fila 2 y la cantidad de horas diaria de trabajo son 3 entonces 2+3 = 5 lo que significa que el for va hasta 4 empezando desde el 2 
-                  if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === "") { 
-                       hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
-                       //this.hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')                                                                                     
-                    }
-                  
+                  if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === "") {
+                    hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
+                    //this.hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')                                                                                     
+                  }
+
                   else {
                     if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === 'red') {
                       console.log("Encontré un festivo")
@@ -507,10 +537,13 @@ function Rejilla() {
                       let numeroDiaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
                       let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innerHTML
                       let horaCruce = i + 2
+                      coloresDeRellenoGenerados.pop()//Esta línea elimina el último color generado pues no es necesario ya que si llega a este punto es porque hay un cruce de horas.
+                      //columnaDondeSeGeneraElColor.pop()//Esta línea elimina la posición de la columna donde se hizo click pues al haber un cruce no es necesario dicha posición
+                      console.log("coloresDeRellenoGenerados después de pop ", coloresDeRellenoGenerados)
                       console.log("No se puede programar porque hay un cruce de horario en la fecha: ", nombreDiaCruce + " " + numeroDiaCruce + "/" + mesCruce, "a las ", horaCruce, "horas.")
                       for (let j = coords.col - 1; j >= auxCoordsCol; j--) { //Este ciclo rellena de blanco hacia la izquierda cuando hay un cruce(deshace lo que pinto)
                         nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, j).innerHTML
-                        if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3]|| nombreDiaInicioCurso === diasTrabajo[4]) {
+                        if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
                           for (let a = 0; a < horasDiariasTrabajo; a++) {
                             hot.current.hotInstance.getCell(coords.row + a, j).style.backgroundColor = ""
                           }
@@ -521,29 +554,43 @@ function Rejilla() {
                     }
                   }
                 }
-                duracionCursoExacto = duracionCursoExacto - horasDiariasTrabajo                
-               
-                coords.col = coords.col + 1                               
+                duracionCursoExacto = duracionCursoExacto - horasDiariasTrabajo
+
+                coords.col = coords.col + 1
               }
               else {
-                coords.col = coords.col + 1                
+                coords.col = coords.col + 1
               }
             }
-            //Este ciclo pinta el día restante con las horas que sobran.
+            //Este ciclo pinta el día restante con las horas que sobran, es decir, las incompletas.
             while (diaHorasDiariasIncompletas !== 0) {
               let nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, coords.col).innerHTML
               console.log("Nombre dia después del While ", nombreDiaInicioCurso)
               if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
-                for(let i = 0; i < diaHorasDiariasIncompletas; i++) {
+                for (let i = 0; i < diaHorasDiariasIncompletas; i++) {
                   if (hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor === "") {
-                      hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor = colorDeRelleno
-                     
+                    hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor = colorDeRelleno
                   }
                   else {
                     let diaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
                     let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innerHTML
-                    let horaCruce = coords.row  + 2
-                    console.log("No se puede programar porque hay un cruce en ", diaCruce + "/" + mesCruce, "a las ", horaCruce, "horas")
+                    let horaCruce = (coords.row + i) + 2 //En coords.row es donde ocurre el cruce entonces le sumo 2 para obtener la hora del cruce.
+                    coloresDeRellenoGenerados.pop()//Esta línea elimina el último color generado pues no es necesario ya que si llega a este punto es porque hay un cruce de horas.
+                    //columnaDondeSeGeneraElColor.pop()//Esta línea elimina la posición de la columna donde se hizo click pues al haber un cruce no es necesario dicha posición
+                    console.log("coloresDeRellenoGenerados después de pop ", coloresDeRellenoGenerados)
+                    console.log("No se puede programar porque hay un cruce en ", diaCruce + "/" + mesCruce, "a las", horaCruce, "horas")
+                    for (let p = i - 1; p >= 0; p--) {
+                      hot.current.hotInstance.getCell(coords.row + p, coords.col).style.backgroundColor = ""
+                    }
+                    for (let j = coords.col - 1; j >= auxCoordsCol; j--) { //Este ciclo rellena de blanco hacia la izquierda cuando hay un cruce(deshace lo que pinto)
+                      nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, j).innerHTML
+                      if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
+                        for (let a = 0; a < horasDiariasTrabajo; a++) {
+                          hot.current.hotInstance.getCell(coords.row + a, j).style.backgroundColor = ""
+                        }
+                      }
+                    }
+                    return
                   }
                 }
                 diaHorasDiariasIncompletas = 0
@@ -551,14 +598,19 @@ function Rejilla() {
               else {
                 coords.col++
               }
-             
+
             }
+            //conteoHorasFebrero()
+            const iterable = [febrero(cantidadHorasSegunColor), marzo(cantidadHorasSegunColor)]
+            Promise.all(iterable)
+              .then(function (results) { console.log("Se leyeron los colores de febrero y marzo:", results) })
+              .catch(function (err) { console.log(err) })
 
           }
-          conteoHorasFebrero(cantidadHorasSegunColor)
-          
+
+
         }
-       
+
         }
         // cells = {function(row,col,prop){
         //   let columnasFestivos = [35,49,50,67,82,98,103,114,127,140,150,192,208,213,233,244,] //este arreglo contiene las posiciones de las columnas de los festivos del año 2023
