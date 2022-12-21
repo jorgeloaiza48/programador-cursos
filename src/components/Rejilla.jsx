@@ -5,9 +5,11 @@ import { HotTable } from '@handsontable/react'
 import 'handsontable/dist/handsontable.full.css';
 import { registerAllModules } from 'handsontable/registry'
 import 'handsontable/dist/handsontable.full.min.css';
-import { useRef } from 'react';
-//import { HyperFormula } from 'hyperformula';
 import backGroundColorFestivos from './rellenoFestivos';
+//import { legacy_createStore as createStore } from 'redux';
+//import { useDispatch } from 'react-redux';
+//import { render } from '@testing-library/react';
+import { useRef } from 'react';
 //import {useEffect} from 'react'
 
 
@@ -15,7 +17,6 @@ function Rejilla() {
 
   //Permite obtener todas las funciones de "handsontable"
   registerAllModules()
-
 
   //****Crea un arreglo de 24 filas por 250 columnas(24x250)
   let Data = new Array(25) //crea un array de 25 posiciones(filas)
@@ -283,35 +284,6 @@ function Rejilla() {
   //  }
   //***********************************************************************************/
 
-  // const selectCelljelm = (e) => {
-  //   // The Handsontable instance is stored under the `hotInstance` property of the wrapper component.
-  //   hot.current.hotInstance.selectCell(20,3);
-  //   hot.current.hotInstance.setDataAtCell(10, 2, 'new');
-  //   hot.current.hotInstance.addHook('afterSelectionEnd',function(r, c, r2, c2) {
-  //     console.log('coordinates: ', r, c);
-  //     for (var i = r; i < (r2 + 1); i++) {
-  //       console.log(hot.current.hotInstance.getDataAtRow(i));           
-  //     }        
-  //   })
-
-  // };
-
-  const hot = useRef(null);
-  //useEffect(() =>{ 
-  //const selectCelljelm48 = () => {
-  // hot.current.hotInstance.addHook('afterOnCellMouseDown',function() {          
-  // const color = hot.current.hotInstance.getCell(4,3)
-  // color.style.background = "blue"
-  //console.log("Color --->", color.style.background)
-  // console.log("Event ", event)
-  // console.log("Coords ", coords)
-  // console.log("TD ", TD)
-  // hot.current.hotInstance.setCellMeta(2,3,'className','hola')
-  //hot.current.hotInstance.render()
-  //})
-  //})
-  //}
-
   function generarNumero(numero) {
     return (Math.random() * numero).toFixed(0);
   }
@@ -320,6 +292,7 @@ function Rejilla() {
     return "rgb" + color
 
   }
+  const hot = useRef(null)
   //Para borrar toda la programación del año me toca hacerlo mes a mes porque cuando lo hacía todo no refrescaba el navegador y es necesario para que todo quede desde cero.
   function deleteWholeProgramming() {
     for (let i = 1; i <= 20; i++) { //febrero
@@ -348,7 +321,7 @@ function Rejilla() {
   // function customRenderer(instance, td) {
   //   //hot.current.hotInstance.renderers.TextRenderer.apply(this, arguments);
   //   td.style.backgroundColor = 'yellow';
-  // } 
+  // }
 
   let coloresDeRellenoGenerados = [] //Este array irá guardando los colores que se generen.
   //let columnaDondeSeGeneraElColor = new Array(coloresDeRellenoGenerados.length) //Este array guarda la columna donde se hace click para saber si el color generado es de cierto mes.
@@ -397,7 +370,7 @@ function Rejilla() {
     let col = 22
     let totalHoras = 0
     for (let i = 0; i < cantidadHorasSegunColor.length; i++) {
-      if (cantidadHorasSegunColor[i] !==0) {
+      if (cantidadHorasSegunColor[i] !== 0) {
         hot.current.hotInstance.getCell(21, col).style.backgroundColor = coloresDeRellenoGenerados[i]
         hot.current.hotInstance.getCell(22, col).innerHTML = cantidadHorasSegunColor[i]
         totalHoras = totalHoras + cantidadHorasSegunColor[i]
@@ -407,17 +380,59 @@ function Rejilla() {
     }
   }
   //}
+  //////////////////////////Trying to implement Redux///////////////////////////////////////////////
+  //const initialReduxStoreState = Data
+  //const hotSettings = useSelector(state => state);
+  //const dispatch = useDispatch()
 
+  // const onBeforeHotChange = changes => {
+  //   reduxStore.dispatch({
+  //     type: 'updateData',
+  //     dataChanges: changes
+  //   });
+  //   return false
+  // }
+  // Action reducers for callbacks triggered by Handsontable
+  // const updates = (state = initialReduxStoreState, action) => {
+  //   switch (action.type) {
+  //     case 'updateData':
+        //const newData = state.data.slice(0);       
+        // for (let [row, column, , newValue] of action.dataChanges) {
+        //   newData[row][column] = newValue;
+        // }
+        // console.log("newData ", newData)
+        // return { Data: newData };
+  //       const newData = [...state.Data]
+  //       action.dataChanges.forEach(([row, column, , newValue]) => {
+  //         newData[row][column] = newValue;
+  //       })
+  //       return {
+  //         ...state,
+  //         Data: newData
+  //       }
+  //     default:
+  //       return state;
+  //   }
+  // };
+
+  // const reduxStore = createStore(updates);
+  // console.log("Estado inicial ", reduxStore.getState())
+  // const settings = reduxStore.getState().updates;
+  // console.log("Este es Settings ", settings)
+  // reduxStore.subscribe(() => {
+  //   console.log("Cambio de estado :", reduxStore.getState())
+  // })
+  //////////////////End of Trying to implement Redux////////////////////////////////////////////
 
   return (
-    <div className="rejilla">
+
+    <div className="rejilla" >
 
       <HotTable
         ref={hot}
         data={Data}
         // rowHeaders={true}
-        // colHeaders={true}
-        //formulas={{ engine: HyperFormula}}
+        // colHeaders={true}        
         mergeCells={[{ row: 1, col: 1, rowspan: 1, colspan: 20 }, { row: 1, col: 22, rowspan: 1, colspan: 23 }, { row: 1, col: 46, rowspan: 1, colspan: 20 }, { row: 1, col: 67, rowspan: 1, colspan: 23 }, { row: 1, col: 91, rowspan: 1, colspan: 22 }, { row: 1, col: 114, rowspan: 1, colspan: 21 }, { row: 1, col: 136, rowspan: 1, colspan: 23 }, { row: 1, col: 160, rowspan: 1, colspan: 21 }, { row: 1, col: 182, rowspan: 1, colspan: 22 }, { row: 1, col: 205, rowspan: 1, colspan: 22 }, { row: 1, col: 228, rowspan: 1, colspan: 21 }, { row: 21, col: 16, rowspan: 1, colspan: 5 }, { row: 22, col: 16, rowspan: 1, colspan: 5 }, { row: 21, col: 40, rowspan: 1, colspan: 5 }, { row: 22, col: 40, rowspan: 1, colspan: 5 }]}
         //contextMenu={true}           
         //readOnly={true}
@@ -459,6 +474,7 @@ function Rejilla() {
           for (let i = 0; i < 249; i++) { //este ciclo pinta de blanco las fechas de la fila 0.
             if (row === 0 && col === i) { cellProperties.className = 'colorMeses' }
           }
+
           return cellProperties
         }}
         //Esta función desabilita las celdas en las cuales no se puede iniciar una programación tales como los nombres de los días entre otras.
@@ -473,7 +489,7 @@ function Rejilla() {
         afterOnCellMouseDown={function (event, coords, TD) {
 
           const color = TD.style.backgroundColor
-          let horasDiariasTrabajo = 5
+          let horasDiariasTrabajo = 4
 
           if (color === "red") { //Detecta si se hizo click en una celda roja(festivo)y arroja un aviso.
             alert("No se puede iniciar programación un día festivo")
@@ -491,7 +507,7 @@ function Rejilla() {
             let horaInicio = coords.row + 2
             let mesInicio = hot.current.hotInstance.getCell(0, coords.col).innerHTML
             let diaInicio = hot.current.hotInstance.getCell(2, coords.col).innerHTML
-            let duracionCursoIngresadoPorUsuario = 18
+            let duracionCursoIngresadoPorUsuario = 11
             let duracionCursoExacto = Math.floor(duracionCursoIngresadoPorUsuario / horasDiariasTrabajo) * horasDiariasTrabajo //cociente de la división
             let diaHorasDiariasIncompletas = duracionCursoIngresadoPorUsuario % horasDiariasTrabajo //residuo de la división
             let diasTrabajo = ["L", "M", "", "J", "V"]
@@ -502,7 +518,6 @@ function Rejilla() {
             for (let i = 0; i < cantidadHorasSegunColor.length; i++) { //Este ciclo llena de ceros el array "cantidadHorasSegunColor" para poder incrementar la cantidad de horas, de lo contrario arroja NaN 
               cantidadHorasSegunColor[i] = 0
             }
-            //columnaDondeSeGeneraElColor.push(coords.col)//Guardamos la posición de la columna donde se genera el color.
             console.log("TD ", color)
             console.log("coords.row ", coords.row)
             console.log("coords.col ", coords.col)
@@ -511,8 +526,7 @@ function Rejilla() {
             console.log("Hora de inicio ---> ", horaInicio)
             console.log("Fecha de inicio ---> ", diaInicio + "/" + mesInicio)
             console.log("coloresDeRellenoGenerados: ", coloresDeRellenoGenerados)
-            //console.log("columnaDondeSeGeneraElColor :", columnaDondeSeGeneraElColor)
-            //console.log("cantidadHorasSegunColor: ",cantidadHorasSegunColor)
+
 
             while (duracionCursoExacto !== 0) {
               let nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, coords.col).innerHTML
@@ -520,7 +534,9 @@ function Rejilla() {
                 for (let i = coords.row; i < horasDiariasTrabajo + coords.row; i++) { //A las horas diaras de trabajo le sumo la fila donde inicia el curso y el "for" va hasta una unidad antes de esta suma lo que permite rellenar las celdas según la cantidad de horas diarias de trabajo. Ejemplo: si el curso inicia en la fila 2 y la cantidad de horas diaria de trabajo son 3 entonces 2+3 = 5 lo que significa que el for va hasta 4 empezando desde el 2 
                   if (hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor === "") {
                     hot.current.hotInstance.getCell(i, coords.col).style.backgroundColor = colorDeRelleno
-                    //this.hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')                                                                                     
+                    //hot.current.hotInstance.setCellMeta(i, coords.col,'className','colorDeRelleno')    
+                   
+                                                                      
                   }
 
                   else {
@@ -537,8 +553,7 @@ function Rejilla() {
                       let numeroDiaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
                       let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innerHTML
                       let horaCruce = i + 2
-                      coloresDeRellenoGenerados.pop()//Esta línea elimina el último color generado pues no es necesario ya que si llega a este punto es porque hay un cruce de horas.
-                      //columnaDondeSeGeneraElColor.pop()//Esta línea elimina la posición de la columna donde se hizo click pues al haber un cruce no es necesario dicha posición
+                      coloresDeRellenoGenerados.pop()//Esta línea elimina el último color generado pues no es necesario ya que si llega a este punto es porque hay un cruce de horas.                      
                       console.log("coloresDeRellenoGenerados después de pop ", coloresDeRellenoGenerados)
                       console.log("No se puede programar porque hay un cruce de horario en la fecha: ", nombreDiaCruce + " " + numeroDiaCruce + "/" + mesCruce, "a las ", horaCruce, "horas.")
                       for (let j = coords.col - 1; j >= auxCoordsCol; j--) { //Este ciclo rellena de blanco hacia la izquierda cuando hay un cruce(deshace lo que pinto)
@@ -572,25 +587,31 @@ function Rejilla() {
                     hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor = colorDeRelleno
                   }
                   else {
-                    let diaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
-                    let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innerHTML
-                    let horaCruce = (coords.row + i) + 2 //En coords.row es donde ocurre el cruce entonces le sumo 2 para obtener la hora del cruce.
-                    coloresDeRellenoGenerados.pop()//Esta línea elimina el último color generado pues no es necesario ya que si llega a este punto es porque hay un cruce de horas.
-                    //columnaDondeSeGeneraElColor.pop()//Esta línea elimina la posición de la columna donde se hizo click pues al haber un cruce no es necesario dicha posición
-                    console.log("coloresDeRellenoGenerados después de pop ", coloresDeRellenoGenerados)
-                    console.log("No se puede programar porque hay un cruce en ", diaCruce + "/" + mesCruce, "a las", horaCruce, "horas")
-                    for (let p = i - 1; p >= 0; p--) {
-                      hot.current.hotInstance.getCell(coords.row + p, coords.col).style.backgroundColor = ""
+                    if (hot.current.hotInstance.getCell(coords.row + i, coords.col).style.backgroundColor === 'red') {
+                      coords.col = coords.col + 1
+                      i = i - 1
                     }
-                    for (let j = coords.col - 1; j >= auxCoordsCol; j--) { //Este ciclo rellena de blanco hacia la izquierda cuando hay un cruce(deshace lo que pinto)
-                      nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, j).innerHTML
-                      if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
-                        for (let a = 0; a < horasDiariasTrabajo; a++) {
-                          hot.current.hotInstance.getCell(coords.row + a, j).style.backgroundColor = ""
+                    else {
+                      let diaCruce = hot.current.hotInstance.getCell(2, coords.col).innerHTML
+                      let mesCruce = hot.current.hotInstance.getCell(0, coords.col).innerHTML
+                      let horaCruce = (coords.row + i) + 2 //En coords.row es donde ocurre el cruce entonces le sumo 2 para obtener la hora del cruce.
+                      coloresDeRellenoGenerados.pop()//Esta línea elimina el último color generado pues no es necesario ya que si llega a este punto es porque hay un cruce de horas.
+                      //columnaDondeSeGeneraElColor.pop()//Esta línea elimina la posición de la columna donde se hizo click pues al haber un cruce no es necesario dicha posición
+                      console.log("coloresDeRellenoGenerados después de pop ", coloresDeRellenoGenerados)
+                      console.log("No se puede programar porque hay un cruce en ", diaCruce + "/" + mesCruce, "a las", horaCruce, "horas")
+                      for (let p = i - 1; p >= 0; p--) {
+                        hot.current.hotInstance.getCell(coords.row + p, coords.col).style.backgroundColor = ""
+                      }
+                      for (let j = coords.col - 1; j >= auxCoordsCol; j--) { //Este ciclo rellena de blanco hacia la izquierda cuando hay un cruce(deshace lo que pinto)
+                        nombreDiaInicioCurso = hot.current.hotInstance.getCell(3, j).innerHTML
+                        if (nombreDiaInicioCurso === diasTrabajo[0] || nombreDiaInicioCurso === diasTrabajo[1] || nombreDiaInicioCurso === diasTrabajo[2] || nombreDiaInicioCurso === diasTrabajo[3] || nombreDiaInicioCurso === diasTrabajo[4]) {
+                          for (let a = 0; a < horasDiariasTrabajo; a++) {
+                            hot.current.hotInstance.getCell(coords.row + a, j).style.backgroundColor = ""
+                          }
                         }
                       }
+                      return
                     }
-                    return
                   }
                 }
                 diaHorasDiariasIncompletas = 0
@@ -605,13 +626,13 @@ function Rejilla() {
             Promise.all(iterable)
               .then(function (results) { console.log("Se leyeron los colores de febrero y marzo:", results) })
               .catch(function (err) { console.log(err) })
-
           }
 
+        }}
 
-        }
 
-        }
+
+        // }}
         // cells = {function(row,col,prop){
         //   let columnasFestivos = [35,49,50,67,82,98,103,114,127,140,150,192,208,213,233,244,] //este arreglo contiene las posiciones de las columnas de los festivos del año 2023
         //   let cellProperties = []
@@ -621,7 +642,11 @@ function Rejilla() {
         //   }
         //   for(let i=0;i<249;i++){ //este ciclo pinta de blanco las fechas de la fila 0.
         //   if(row===0 && col===i){cellProperties.className = 'celdas2'}}
-        //   return cellProperties }}          
+        //   return cellProperties }}
+
+        //beforeChange={onBeforeHotChange}
+        //afterChange={onBeforeHotChange}
+        //{...hotSettings}
         hiddenRows={true}
         //hiddenRows = {rows = {2}}
         //cell={[{row:0, col:5, className:'celdas'},{row:6, col:1, className:'celdas'},{row:5, col:8, className:'celdas'}]}             
@@ -635,8 +660,11 @@ function Rejilla() {
         {/* <button onClick={selectCelljelm48}>BackgroundColor</button> */}
       </div>
     </div>
-  );
-}
 
+  )
 
+}//rejilla
+
+//}
 export default Rejilla;
+
